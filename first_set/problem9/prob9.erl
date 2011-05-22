@@ -1,58 +1,46 @@
 -module(prob9).
--export([pythagorean_triplet_sum/1]).
+-export([pythagorean_triplet_Sum/1, euclids_formula/2]).
 
 square(X) ->
-    floor(math:pow(X,0.5)).
+    math:pow(X,2).
 
-floor(X) ->
-    T = erlang:trunc(X),
-    case (X - T) of
-        Neg when Neg < 0 -> T - 1;
-        Pos when Pos > 0 -> T;
-        _ -> T
-    end.
-
-pythagorean_triplet_sum(X) ->
+pythagorean_triplet_Sum(X) ->
     if 
         X > 1 ->
-            find_pythagorean_triplet_sum({0,0,square(X)+1},{},X);
+            euclids_formula(2,1,{ 0,0 ,0 },X);% doesnt mantain order between A and B
         true ->
             io:format("Error, no se pueden trabajar con numeros menores a 1")
     end.
 
+euclids_formula(_, _, {A,B,C}, Sum) when (A+B+C) /= 0 , Sum rem trunc(A + B + C) == 0 ->
+    io:format("primitive pythagorean triplet found. A:~w B:~w C:~w~n",[A,B,C]), 
+    N = primitive_found(A+B+C, 1, Sum),
+    io:format("A:~w, B:~w, C:~w~n",[A*N,B*N,C*N]),
+    trunc((A*N)*(B*N)*(C*N));
 
-find_pythagorean_triplet_sum({0, 0, 0}, _, _) -> % math:pow(C,0.5) > math:pow(Sum, 0.5)
-    io:format("No hay pythagorean triplet par este numero~n");
+euclids_formula(M, N, _, Sum) when M+N > Sum ->
+    io:format("No existe un pythagorean triplet para esta Suma.~n");
 
-find_pythagorean_triplet_sum({0, 0, C}, _, Sum) ->
-    SC = math:pow(C-1,2),
-    find_pythagorean_triplet_sum({0, square(Sum - SC)+1 , C-1},{Sum -SC,SC},Sum);
+euclids_formula(_, N, {A,B,C}, Sum) when A + B + C > Sum ->
+    %io:format("-->M:~w, N:~w~n",[M,N]),
+    euclids_formula(N+2,N+1,{0,0,0},Sum); %reset with N + 1 now
 
-find_pythagorean_triplet_sum({0, B, C},{ SB, SC}, Sum) ->
-    find_pythagorean_triplet_sum({square(Sum - SB - SC) , B-1, C},{SB - math:pow(B-1,2), SB, SC},Sum);
+euclids_formula(M, N, _, Sum) -> % M > N always
+    %io:format("M:~w, N:~w~n",[M,N]),
+    A = square(M) - square(N),
+    B = 2*M*N,
+    C = square(M) + square(N),
+    euclids_formula(M+1,N,{A,B,C},Sum).
 
+primitive_found(PrimitiveSum, N, Sum) when PrimitiveSum*N == Sum ->
+    N;
 
-find_pythagorean_triplet_sum({A, B, C},_, Sum) when (A + B + C) == Sum ->
-    io:format("A->~w; B->~w; C->~w;~n",[A,B,C]),
-    A*B*C;
+primitive_found(PrimitiveSum, N, Sum) ->
+    primitive_found(PrimitiveSum, N+1, Sum).
 
-find_pythagorean_triplet_sum({A,B,C},{SA,SB,SC},Sum) ->
-    io:format("A->~w; B->~w; C->~w; SA->~w ;SB->~w; SC->~w; ~n",[A,B,C,SA,SB,SC]),
-    find_pythagorean_triplet_sum({A-1,B,C},{SA,SB,SC},Sum).
-    
-
-
-
-
-    
-    %if 
-    %    A rem 2 == 0 -> %evaluo los pares
-    %        B = (math:pow(A+1,2)-1)/2,
-    %        io:format("Inpar: A->~w; B->~w; C->~w; SUM:~w ~n",[A+1,B,B+1,A+B+B+2]),
-    %        find_pythagorean_triplet_sum({A+1,B, B+1},Sum);
-    %    true -> %evaluo los inpares
-    %        B = (math:pow((A+1)/2,2) -1),
-    %        io:format("Par: A->~w; B->~w; C->~w;SUM:~w ~n",[A+1,B,B+2, A+B+B+3]),
-    %        find_pythagorean_triplet_sum({A+1,B, B+2},Sum)
-    %end.
+euclids_formula(M, N) -> % M > N always
+    A = square(M) - square(N),
+    B = 2*M*N,
+    C = square(M) + square(N),
+    io:format("A:~w, B:~w, C:~w~n",[A,B,C]).
 
