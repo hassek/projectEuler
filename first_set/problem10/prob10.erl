@@ -9,4 +9,4 @@ get_sum_primes([], SumPrimes) ->
 
 get_sum_primes([Num|Candidates], SumPrimes) ->
     %io:format("~w ~w~n",[Num, SumPrimes]),
-    get_nth_prime(lists:filter(fun(Y) -> Y rem Num /= 0 end,Candidates), SumPrimes+Num).
+    get_sum_primes(lists:filter(fun(Y) -> Y rem Num /= 0 end,Candidates), SumPrimes+Num).
