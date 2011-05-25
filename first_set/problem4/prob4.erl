@@ -1,6 +1,5 @@
 -module(prob4).
 -export([palindrome/1]).
-%Carajo este si me costo haha
 
 palindrome(X) ->
     find_palindrome({X*X,X}),
